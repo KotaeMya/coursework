@@ -1,0 +1,27 @@
+﻿<Window x:Class="courseworkWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseworkWPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="454" Width="453">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" x:Name="button1" Width="130" Height="20" Content="Новая синхронизация" Click="newSynch" />
+        <!--<Button Grid.Column="1" x:Name="button2" Width="60" Height="30" Content="Нажать" />-->
+        <ListBox x:Name="FoldersList" Grid.Column="1" ItemsSource="{Binding Folders}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="5">
+                        <TextBlock FontSize="18" Text="{Binding FolderFrom}"/>
+                        <TextBlock Text="{Binding FolderTo}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
