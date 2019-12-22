@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace courseworkWPF.Model
 {
@@ -15,6 +16,19 @@ namespace courseworkWPF.Model
         private string _folderFrom;
         private string _forlderTo;
         FileSystemWatcher watcher;
+        List<string> Log = new List<string>();
+        private static int oldAmountNotify;
+        private static int newAmountNotify;
+
+        public Folder()
+        {
+            // создаем таймер
+            DispatcherTimer timer = new DispatcherTimer();
+
+            timer.Tick += new EventHandler(CopyFolder);
+            timer.Interval = new TimeSpan(0, 0, 5);
+            timer.Start();
+        }
         public string FolderFrom
         {
             get { return _folderFrom; }
@@ -54,23 +68,53 @@ namespace courseworkWPF.Model
         }
         private void OnRenamed(object sender, RenamedEventArgs e)
         {
-            NotifyWindow(string.Format("По пути: {0}, файл переименован: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType));
+            string notifyMessage = string.Format("По пути: {0}, файл переименован: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
+            NotifyWindow(notifyMessage);
+            Log.Add(notifyMessage);
         }
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
+            string notifyMessage;
             switch (e.ChangeType.ToString())
             {
                 case "Created":
-                    NotifyWindow(string.Format("По пути: {0}, файл создан: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType));
+                    notifyMessage = string.Format("По пути: {0}, файл создан: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
+                    NotifyWindow(notifyMessage);
+                    Log.Add(notifyMessage);
                     return;
                 case "Changed":
-                    NotifyWindow(string.Format("По пути: {0}, файл изменен: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType));
+                    notifyMessage = string.Format("По пути: {0}, файл изменен: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
+                    NotifyWindow(notifyMessage);
+                    Log.Add(notifyMessage);
                     return;
                 case "Deleted":
-                    NotifyWindow(string.Format("По пути: {0}, файл удален: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType));
+                    notifyMessage = string.Format("По пути: {0}, файл удален: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
+                    NotifyWindow(notifyMessage);
+                    Log.Add(notifyMessage);
                     return;
                 default: return;
             }
+        }
+        private void CopyFolder(Object sender, EventArgs e)
+        {
+            
+            DirectoryInfo source = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
+            DirectoryInfo destin = new DirectoryInfo(string.Format(@"{0}", FolderTo));
+            foreach (var item in source.GetFiles())
+            {
+                item.CopyTo(string.Format("{0}\\{1}", destin, item.Name), true);
+            }
+            //foreach (var itemD in source.GetDirectories())
+            //{
+            //    source = new DirectoryInfo(string.Format(@"{0}\\", itemD.FullName));
+            //    Directory.CreateDirectory(string.Format(@"{0}\\{1}", destin.FullName, itemD.Name)); ;
+            //    //foreach (var itemF in source.GetFiles())
+            //    //{
+            //    //    itemF.CopyTo(string.Format("{0}\\{1}", destin, itemF.Name), true);
+            //    //}
+
+            //    //item.CopyTo(string.Format("{0}\\{1}", destin, item.Name), true);
+            //}
         }
         private void NotifyWindow(string notify)
         {
