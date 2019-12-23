@@ -59,7 +59,7 @@ namespace courseworkWPF.ViewModel
             if (obj == null)
                 return;
             var synch = (Model.Folder)obj;
-            synch.watcher.Dispose();
+            synch.StopWatch();
             Folders.RemoveAt(index);
         }
         public event PropertyChangedEventHandler PropertyChanged;

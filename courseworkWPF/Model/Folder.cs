@@ -15,17 +15,15 @@ namespace courseworkWPF.Model
     {
         private string _folderFrom;
         private string _forlderTo;
-        public FileSystemWatcher watcher;
+        private FileSystemWatcher watcher;
+        private DispatcherTimer timer;
         List<string> Log = new List<string>();
 
         public Folder()
         {
-            DispatcherTimer timer = new DispatcherTimer();
-
-            timer.Tick += new EventHandler(CopyFolder);
-            timer.Interval = new TimeSpan(0, 0, 5);
-            timer.Start();
+            TimeWatch();
         }
+
         public string FolderFrom
         {
             get { return _folderFrom; }
@@ -48,6 +46,18 @@ namespace courseworkWPF.Model
         public void OnPropertyChanged([CallerMemberName]string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+        private void TimeWatch()
+        {
+            timer = new DispatcherTimer();
+            timer.Tick += new EventHandler(CopyFolder);
+            timer.Interval = new TimeSpan(0, 0, 5);
+            timer.Start();
+        }
+        public void StopWatch()
+        {
+            timer.Stop();
+            watcher.Dispose();
         }
         public void initWatcher()
         {
