@@ -25,9 +25,9 @@ namespace courseworkWPF
         {
             FolderTo.Text = selectFolder(ip);
         }
-        public void AddFolder(Object sender, EventArgs e)
+        public void AddSynch(Object sender, EventArgs e)
         {
-            ((ViewModel.ViewModel)DataContext).AddFolder();
+            ((ViewModel.ViewModel)DataContext).AddSynch();
         }
 
         private string selectFolder(string ip)

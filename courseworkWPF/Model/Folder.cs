@@ -15,14 +15,11 @@ namespace courseworkWPF.Model
     {
         private string _folderFrom;
         private string _forlderTo;
-        FileSystemWatcher watcher;
+        public FileSystemWatcher watcher;
         List<string> Log = new List<string>();
-        private static int oldAmountNotify;
-        private static int newAmountNotify;
 
         public Folder()
         {
-            // создаем таймер
             DispatcherTimer timer = new DispatcherTimer();
 
             timer.Tick += new EventHandler(CopyFolder);
@@ -97,24 +94,30 @@ namespace courseworkWPF.Model
         }
         private void CopyFolder(Object sender, EventArgs e)
         {
-            
             DirectoryInfo source = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
             DirectoryInfo destin = new DirectoryInfo(string.Format(@"{0}", FolderTo));
-            foreach (var item in source.GetFiles())
-            {
-                item.CopyTo(string.Format("{0}\\{1}", destin, item.Name), true);
-            }
-            //foreach (var itemD in source.GetDirectories())
-            //{
-            //    source = new DirectoryInfo(string.Format(@"{0}\\", itemD.FullName));
-            //    Directory.CreateDirectory(string.Format(@"{0}\\{1}", destin.FullName, itemD.Name)); ;
-            //    //foreach (var itemF in source.GetFiles())
-            //    //{
-            //    //    itemF.CopyTo(string.Format("{0}\\{1}", destin, itemF.Name), true);
-            //    //}
+            CopySubDirectoryes(source, destin);
+        }
 
-            //    //item.CopyTo(string.Format("{0}\\{1}", destin, item.Name), true);
-            //}
+        static void CopySubDirectoryes(DirectoryInfo source, DirectoryInfo destination)
+        {
+            if (!destination.Exists)
+            {
+                destination.Create();
+            }
+
+            FileInfo[] files = source.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                file.CopyTo(Path.Combine(destination.FullName, file.Name), true);
+            }
+
+            DirectoryInfo[] dirs = source.GetDirectories();
+            foreach (DirectoryInfo dir in dirs)
+            {
+                string destinationDir = Path.Combine(destination.FullName, dir.Name);
+                CopySubDirectoryes(dir, new DirectoryInfo(destinationDir));
+            }
         }
         private void NotifyWindow(string notify)
         {

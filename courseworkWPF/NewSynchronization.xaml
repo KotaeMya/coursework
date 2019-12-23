@@ -20,6 +20,6 @@
         <Button Click="click_Overwiev1" Grid.Row="0" Grid.Column="1" Height="30" Content="Обзор" Margin="0 0 10 0"/>
         <TextBox Grid.Row="1" Name="FolderTo" Height="30" Text="{Binding FolderTo, UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 0"/>
         <Button Click="click_Overwiev2" Grid.Row="1" Grid.Column="1" Height="30" Content="Обзор" Margin="0 0 10 0"/>
-        <Button Grid.Row="2" Content="Создать синхронизацию" Height="30" Click="AddFolder" Margin="10 0 10 0"/>
+        <Button Grid.Row="2" Content="Создать синхронизацию" Height="30" Click="AddSynch" Margin="10 0 10 0"/>
     </Grid>
 </Window>

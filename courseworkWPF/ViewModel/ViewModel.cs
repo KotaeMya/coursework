@@ -42,7 +42,7 @@ namespace courseworkWPF.ViewModel
                 //new Model.Folder { FolderFrom = "folder3", FolderTo = "folder3" }
             };
         }
-        public void AddFolder()
+        public void AddSynch()
         {
             Model.Folder newSynch = new Model.Folder() { FolderFrom = this.FolderFrom, FolderTo = this.FolderTo };
             if (Folders.Count != 0)
@@ -53,6 +53,14 @@ namespace courseworkWPF.ViewModel
                 }
             Folders.Add(newSynch);
             Folders[Folders.Count - 1].initWatcher();
+        }
+        public void DeleteSynch(object obj, int index)
+        {
+            if (obj == null)
+                return;
+            var synch = (Model.Folder)obj;
+            synch.watcher.Dispose();
+            Folders.RemoveAt(index);
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
