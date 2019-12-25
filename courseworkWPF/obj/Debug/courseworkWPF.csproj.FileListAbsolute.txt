@@ -32,3 +32,5 @@ E:\repos\courseworkWPF\courseworkWPF\obj\Debug\courseworkWPF.exe
 E:\repos\courseworkWPF\courseworkWPF\obj\Debug\courseworkWPF.pdb
 E:\repos\courseworkWPF\courseworkWPF\obj\Debug\NewSynchronization.g.cs
 E:\repos\courseworkWPF\courseworkWPF\obj\Debug\NewSynchronization.baml
+E:\repos\courseworkWPF\courseworkWPF\obj\Debug\EventsLog.g.cs
+E:\repos\courseworkWPF\courseworkWPF\obj\Debug\EventsLog.baml

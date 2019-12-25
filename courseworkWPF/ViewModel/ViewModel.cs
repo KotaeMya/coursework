@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -33,17 +34,19 @@ namespace courseworkWPF.ViewModel
             }
         }
         public ObservableCollection<Model.Folder> Folders { get; set; }
+        public ObservableCollection<Model.OneEventLog> OneEventLogs { get; set; }
         public ViewModel()
         {
-            Folders = new ObservableCollection<Model.Folder>
-            {
-                //new Model.Folder { FolderFrom = "folder1", FolderTo = "folder1" },
-                //new Model.Folder { FolderFrom = "folder2", FolderTo = "folder2" },
-                //new Model.Folder { FolderFrom = "folder3", FolderTo = "folder3" }
-            };
+            Folders = new ObservableCollection<Model.Folder>();
+            OneEventLogs = new ObservableCollection<Model.OneEventLog>();
         }
         public void AddSynch()
         {
+            if (!Directory.Exists(this.FolderFrom))
+                return;
+            if (!Directory.Exists(this.FolderTo))
+                return;
+
             Model.Folder newSynch = new Model.Folder() { FolderFrom = this.FolderFrom, FolderTo = this.FolderTo };
             if (Folders.Count != 0)
                 foreach (Model.Folder item in Folders)
@@ -52,7 +55,8 @@ namespace courseworkWPF.ViewModel
                         return;
                 }
             Folders.Add(newSynch);
-            Folders[Folders.Count - 1].initWatcher();
+            Folders[Folders.Count - 1].InitWatcher();
+            Folders[Folders.Count - 1].InitLogs();
         }
         public void DeleteSynch(object obj, int index)
         {
@@ -62,9 +66,37 @@ namespace courseworkWPF.ViewModel
             synch.StopWatch();
             Folders.RemoveAt(index);
         }
+        public bool IsSerializeble(int indexOfListItem)
+        {
+            try
+            {
+                if (Folders[indexOfListItem].getLogCount())
+                    return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+            return false;
+        }
+        public void getDeserializeEventsLog(int i)
+        {
+            OneEventLogs.Clear();
+            foreach (var item in Folders[i].DeserializeEventsLog())
+            {
+                OneEventLogs.Add(item);
+            }
+        }
+        public void getEventLogs(int i, string e)
+        {
+            OneEventLogs.Clear();
+            foreach (var item in Folders[i].DeserializeEventsLog().Where(item => item.Event == e))
+            {
+                OneEventLogs.Add(item);
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string property = "")
+        private void OnPropertyChanged(string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }

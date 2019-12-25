@@ -56,11 +56,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="EventsLog.xaml.cs">
+      <DependentUpon>EventsLog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model\Folder.cs" />
+    <Compile Include="Model\OneEventLog.cs" />
     <Compile Include="NewSynchronization.xaml.cs">
       <DependentUpon>NewSynchronization.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ViewModel.cs" />
+    <Page Include="EventsLog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

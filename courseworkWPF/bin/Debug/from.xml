@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ArrayOfOneEventLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OneEventLog Event="Deleted" EventLog="По пути: C:\Users\sereja\Desktop\from, файл удален: Новый текстовый документ.txt, Действие: Deleted" />
+  <OneEventLog Event="Created" EventLog="По пути: C:\Users\sereja\Desktop\from, файл создан: Новый текстовый документ.txt, Действие: Created" />
+  <OneEventLog Event="Deleted" EventLog="По пути: C:\Users\sereja\Desktop\from, файл удален: Новый текстовый документ.txt, Действие: Deleted" />
+  <OneEventLog Event="Created" EventLog="По пути: C:\Users\sereja\Desktop\from, файл создан: Новый текстовый документ.txt, Действие: Created" />
+  <OneEventLog Event="Changed" EventLog="По пути: C:\Users\sereja\Desktop\from, файл изменен: Новый текстовый документ.txt, Действие: Changed" />
+</ArrayOfOneEventLog>

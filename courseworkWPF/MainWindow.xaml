@@ -11,9 +11,26 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" x:Name="button1" Width="130" Height="20" Content="Новая синхронизация" Click="newSynch" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Column="0" Grid.Row="0" x:Name="btnCreateSynch" Width="130"
+                Click="newSynch">
+            <TextBlock TextWrapping="Wrap" FontSize="14" Text="Новая синхронизация"/>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="1" x:Name="btnDeleteSynch" Width="130"
+                Click="deleteSynch">
+            <TextBlock TextWrapping="Wrap" FontSize="14"  Text="Удалить синхронизацию"/>
+        </Button>
+        <Button Grid.Column="0" Grid.Row="2" x:Name="btnEventsLog" Width="130"
+                Click="ShowEventsLog">
+            <TextBlock TextWrapping="Wrap" FontSize="14"  Text="Список событий"/>
+        </Button>
         <!--<Button Grid.Column="1" x:Name="button2" Width="60" Height="30" Content="Нажать" />-->
-        <ListBox x:Name="FoldersList" Grid.Column="1" ItemsSource="{Binding Folders}">
+        <ListBox Grid.RowSpan="4" x:Name="FoldersList" Grid.Column="1" ItemsSource="{Binding Folders}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="5">

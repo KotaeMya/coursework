@@ -1,53 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Threading;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace courseworkWPF.Model
 {
-    class Folder : INotifyPropertyChanged
+
+    [Serializable]
+    [XmlRoot(Namespace = "http://cpe.mitre.org/language/2.0")]
+    public class Folder
     {
-        private string _folderFrom;
-        private string _forlderTo;
+        private string _folderFromName; // имя папки за которой ведется слежка
         private FileSystemWatcher watcher;
         private DispatcherTimer timer;
-        List<string> Log = new List<string>();
-
+        private ObservableCollection<OneEventLog> Log = new ObservableCollection<OneEventLog>();
         public Folder()
         {
-            TimeWatch();
+            CreateTimeWatch();
         }
-
-        public string FolderFrom
-        {
-            get { return _folderFrom; }
-            set
-            {
-                _folderFrom = value;
-                OnPropertyChanged(nameof(FolderFrom));
-            }
-        }
-        public string FolderTo
-        {
-            get { return _forlderTo; }
-            set
-            {
-                _forlderTo = value;
-                OnPropertyChanged(nameof(FolderTo));
-            }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string property = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-        }
-        private void TimeWatch()
+        public string FolderFrom { get; set; }
+        public string FolderTo { get; set; }
+        private void CreateTimeWatch()
         {
             timer = new DispatcherTimer();
             timer.Tick += new EventHandler(CopyFolder);
@@ -59,7 +37,7 @@ namespace courseworkWPF.Model
             timer.Stop();
             watcher.Dispose();
         }
-        public void initWatcher()
+        public void InitWatcher()
         {
             watcher = new FileSystemWatcher();
             watcher.Path = this.FolderFrom;
@@ -77,27 +55,31 @@ namespace courseworkWPF.Model
         {
             string notifyMessage = string.Format("По пути: {0}, файл переименован: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
             NotifyWindow(notifyMessage);
-            Log.Add(notifyMessage);
+            Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Renamed.ToString(), EventLog = notifyMessage });
+            SerializeEventsLog();
         }
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
             string notifyMessage;
-            switch (e.ChangeType.ToString())
+            switch (e.ChangeType)
             {
-                case "Created":
+                case WatcherChangeTypes.Created:
                     notifyMessage = string.Format("По пути: {0}, файл создан: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(notifyMessage);
+                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Created.ToString(), EventLog = notifyMessage });
+                    SerializeEventsLog();
                     return;
-                case "Changed":
+                case WatcherChangeTypes.Changed:
                     notifyMessage = string.Format("По пути: {0}, файл изменен: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(notifyMessage);
+                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Changed.ToString(), EventLog = notifyMessage });
+                    SerializeEventsLog();
                     return;
-                case "Deleted":
+                case WatcherChangeTypes.Deleted:
                     notifyMessage = string.Format("По пути: {0}, файл удален: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(notifyMessage);
+                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Deleted.ToString(), EventLog = notifyMessage });
+                    SerializeEventsLog();
                     return;
                 default: return;
             }
@@ -108,20 +90,17 @@ namespace courseworkWPF.Model
             DirectoryInfo destin = new DirectoryInfo(string.Format(@"{0}", FolderTo));
             CopySubDirectoryes(source, destin);
         }
-
         static void CopySubDirectoryes(DirectoryInfo source, DirectoryInfo destination)
         {
             if (!destination.Exists)
             {
                 destination.Create();
             }
-
             FileInfo[] files = source.GetFiles();
             foreach (FileInfo file in files)
             {
                 file.CopyTo(Path.Combine(destination.FullName, file.Name), true);
             }
-
             DirectoryInfo[] dirs = source.GetDirectories();
             foreach (DirectoryInfo dir in dirs)
             {
@@ -146,9 +125,56 @@ namespace courseworkWPF.Model
             // set the apartment state  
             threadWindow.SetApartmentState(ApartmentState.STA);
             // make the thread a background thread  
-            //newWindowThread.IsBackground = true;
+            threadWindow.IsBackground = true;
             // start the thread  
             threadWindow.Start();
+        }
+        public void SerializeEventsLog()
+        {
+            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
+            _folderFromName = folderFromInfo.Name;
+            if (Log.Count == 0)
+                return;
+            if (File.Exists(string.Format("{0}.xml", _folderFromName)))
+            {
+                File.Delete(string.Format("{0}.xml", _folderFromName));
+            }
+            XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
+            using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.OpenOrCreate))
+            {
+                xmlFormatter.Serialize(fileStream, Log);
+            }
+        }
+        public ObservableCollection<OneEventLog> DeserializeEventsLog()
+        {
+            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
+            _folderFromName = folderFromInfo.Name;
+
+            XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
+            using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.Open))
+            {
+                return (ObservableCollection<OneEventLog>)xmlFormatter.Deserialize(fileStream);
+            }
+        }
+        public void InitLogs()
+        {
+            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
+            _folderFromName = folderFromInfo.Name;
+            if (!File.Exists(string.Format("{0}.xml", _folderFromName)))
+            {
+                return;
+            }
+            XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
+            using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.Open))
+            {
+                Log = (ObservableCollection<OneEventLog>)xmlFormatter.Deserialize(fileStream);
+            }
+        }
+        public bool getLogCount()
+        {
+            if (Log.Count == 0)
+                return false;
+            return true;
         }
     }
 }

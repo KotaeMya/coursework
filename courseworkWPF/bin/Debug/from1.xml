@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ArrayOfOneEventLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OneEventLog Event="Created" EventLog="По пути: C:\Users\sereja\Desktop\from1, файл создан: Новый текстовый документ (3).txt, Действие: Created" />
+  <OneEventLog Event="Created" EventLog="По пути: C:\Users\sereja\Desktop\from1, файл создан: Новая папка, Действие: Created" />
+</ArrayOfOneEventLog>

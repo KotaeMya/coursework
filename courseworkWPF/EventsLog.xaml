@@ -1,0 +1,38 @@
+﻿<Window x:Class="courseworkWPF.EventsLog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:courseworkWPF"
+        mc:Ignorable="d"
+        Title="EventsLog" Height="450" Width="800">
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Margin="2" FontSize="18" Grid.Column="0" Click="GetList">Обновить</Button>
+        <Button Margin="2" FontSize="18" Grid.Column="1" Click="Created">Добавлен</Button>
+        <Button Margin="2" FontSize="18" Grid.Column="2" Click="Deleted">Удален</Button>
+        <Button Margin="2" FontSize="18" Grid.Column="3" Click="Changed">Измнен</Button>
+        <Button Margin="2" FontSize="18" Grid.Column="4" Click="Renamed">Переименовань</Button>
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 Margin="5" Grid.ColumnSpan="5" Grid.Row="1"
+                 x:Name="FoldersList" Grid.Column="0" ItemsSource="{Binding OneEventLogs}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="5">
+                        <TextBlock TextWrapping="Wrap" FontSize="18" Text="{Binding EventLog}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
