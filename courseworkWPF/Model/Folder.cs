@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows.Threading;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace courseworkWPF.Model
@@ -18,7 +15,7 @@ namespace courseworkWPF.Model
         private string _folderFromName; // имя папки за которой ведется слежка
         private FileSystemWatcher watcher;
         private DispatcherTimer timer;
-        private ObservableCollection<OneEventLog> Log = new ObservableCollection<OneEventLog>();
+        private ObservableCollection<OneEventLog> Logs = new ObservableCollection<OneEventLog>();
         public Folder()
         {
             CreateTimeWatch();
@@ -55,7 +52,7 @@ namespace courseworkWPF.Model
         {
             string notifyMessage = string.Format("По пути: {0}, файл переименован: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
             NotifyWindow(notifyMessage);
-            Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Renamed.ToString(), EventLog = notifyMessage });
+            Logs.Add(new OneEventLog() { Event = WatcherChangeTypes.Renamed.ToString(), EventLog = notifyMessage });
             SerializeEventsLog();
         }
         private void OnChanged(object sender, FileSystemEventArgs e)
@@ -66,19 +63,19 @@ namespace courseworkWPF.Model
                 case WatcherChangeTypes.Created:
                     notifyMessage = string.Format("По пути: {0}, файл создан: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Created.ToString(), EventLog = notifyMessage });
+                    Logs.Add(new OneEventLog() { Event = WatcherChangeTypes.Created.ToString(), EventLog = notifyMessage });
                     SerializeEventsLog();
                     return;
                 case WatcherChangeTypes.Changed:
                     notifyMessage = string.Format("По пути: {0}, файл изменен: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Changed.ToString(), EventLog = notifyMessage });
+                    Logs.Add(new OneEventLog() { Event = WatcherChangeTypes.Changed.ToString(), EventLog = notifyMessage });
                     SerializeEventsLog();
                     return;
                 case WatcherChangeTypes.Deleted:
                     notifyMessage = string.Format("По пути: {0}, файл удален: {1}, Действие: {2}", watcher.Path, e.Name, e.ChangeType);
                     NotifyWindow(notifyMessage);
-                    Log.Add(new OneEventLog() { Event = WatcherChangeTypes.Deleted.ToString(), EventLog = notifyMessage });
+                    Logs.Add(new OneEventLog() { Event = WatcherChangeTypes.Deleted.ToString(), EventLog = notifyMessage });
                     SerializeEventsLog();
                     return;
                 default: return;
@@ -108,48 +105,48 @@ namespace courseworkWPF.Model
                 CopySubDirectoryes(dir, new DirectoryInfo(destinationDir));
             }
         }
-        private void NotifyWindow(string notify)
+        private void NotifyWindow(string notifyMessage)
         {
             Thread threadWindow = null;
             threadWindow = new Thread(new ThreadStart(() =>
             {
-                // create and show the window
-                NotifyWindow notifyWindow = new NotifyWindow(
-                    notify,
-                    threadWindow
-                    );
+                NotifyWindow notifyWindow = new NotifyWindow(notifyMessage);
                 notifyWindow.Show();
-                // start the Dispatcher processing
-                System.Windows.Threading.Dispatcher.Run();
+                Dispatcher.Run();
             }));
-            // set the apartment state  
             threadWindow.SetApartmentState(ApartmentState.STA);
-            // make the thread a background thread  
             threadWindow.IsBackground = true;
-            // start the thread  
             threadWindow.Start();
         }
         public void SerializeEventsLog()
         {
-            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
-            _folderFromName = folderFromInfo.Name;
-            if (Log.Count == 0)
+            SetFolderFormName();
+            if (IsLogsEmpty())
                 return;
-            if (File.Exists(string.Format("{0}.xml", _folderFromName)))
+            if (IsFile(string.Format("{0}.xml", _folderFromName)))
             {
                 File.Delete(string.Format("{0}.xml", _folderFromName));
             }
             XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
             using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.OpenOrCreate))
             {
-                xmlFormatter.Serialize(fileStream, Log);
+                xmlFormatter.Serialize(fileStream, Logs);
             }
         }
+
+        private bool IsFile(string file)
+        {
+            return File.Exists(file);
+        }
+
+        private bool IsLogsEmpty()
+        {
+            return Logs.Count == 0;
+        }
+
         public ObservableCollection<OneEventLog> DeserializeEventsLog()
         {
-            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
-            _folderFromName = folderFromInfo.Name;
-
+            SetFolderFormName();
             XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
             using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.Open))
             {
@@ -158,21 +155,25 @@ namespace courseworkWPF.Model
         }
         public void InitLogs()
         {
-            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
-            _folderFromName = folderFromInfo.Name;
-            if (!File.Exists(string.Format("{0}.xml", _folderFromName)))
+            SetFolderFormName();
+            if (!IsFile(string.Format("{0}.xml", _folderFromName)))
             {
                 return;
             }
             XmlSerializer xmlFormatter = new XmlSerializer(typeof(ObservableCollection<OneEventLog>));
             using (FileStream fileStream = new FileStream(string.Format("{0}.xml", _folderFromName), FileMode.Open))
             {
-                Log = (ObservableCollection<OneEventLog>)xmlFormatter.Deserialize(fileStream);
+                Logs = (ObservableCollection<OneEventLog>)xmlFormatter.Deserialize(fileStream);
             }
+        }
+        public void SetFolderFormName()
+        {
+            var folderFromInfo = new DirectoryInfo(string.Format(@"{0}", FolderFrom));
+            _folderFromName = folderFromInfo.Name;
         }
         public bool getLogCount()
         {
-            if (Log.Count == 0)
+            if (IsLogsEmpty())
                 return false;
             return true;
         }

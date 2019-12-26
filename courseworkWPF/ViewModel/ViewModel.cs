@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace courseworkWPF.ViewModel
 {
@@ -42,30 +37,52 @@ namespace courseworkWPF.ViewModel
         }
         public void AddSynch()
         {
-            if (!Directory.Exists(this.FolderFrom))
+            if (!IsFolder(this.FolderFrom))
                 return;
-            if (!Directory.Exists(this.FolderTo))
+            if (!IsFolder(this.FolderTo))
                 return;
 
             Model.Folder newSynch = new Model.Folder() { FolderFrom = this.FolderFrom, FolderTo = this.FolderTo };
-            if (Folders.Count != 0)
+            if (IsNotFoldesEmpty())
                 foreach (Model.Folder item in Folders)
                 {
-                    if (newSynch.FolderFrom == item.FolderFrom && newSynch.FolderTo == item.FolderTo)
+                    if (IsSynchronizationAlreadyExists(newSynch, item))
                         return;
                 }
             Folders.Add(newSynch);
             Folders[Folders.Count - 1].InitWatcher();
             Folders[Folders.Count - 1].InitLogs();
         }
+
+        private bool IsSynchronizationAlreadyExists(Model.Folder newSynch, Model.Folder item)
+        {
+            return newSynch.FolderFrom == item.FolderFrom && newSynch.FolderTo == item.FolderTo;
+        }
+
+        private bool IsNotFoldesEmpty()
+        {
+            return Folders.Count != 0;
+        }
+
+        private bool IsFolder(string folder)
+        {
+            return Directory.Exists(folder);
+        }
+
         public void DeleteSynch(object obj, int index)
         {
-            if (obj == null)
+            if (IsNull(obj))
                 return;
             var synch = (Model.Folder)obj;
             synch.StopWatch();
             Folders.RemoveAt(index);
         }
+
+        private bool IsNull(object obj)
+        {
+            return obj == null;
+        }
+
         public bool IsSerializeble(int indexOfListItem)
         {
             try

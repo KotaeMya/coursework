@@ -10,34 +10,29 @@ namespace courseworkWPF
     /// </summary>
     public partial class NewSynchronization : Window
     {
-        string ip;
         public NewSynchronization()
         {
             InitializeComponent();
-            string Host = Dns.GetHostName();
-            ip = Dns.GetHostByName(Host).AddressList[0].ToString();
         }
         public void click_Overwiev1(Object sender, EventArgs e)
         {
-            FolderFrom.Text = selectFolder(ip);
+            FolderFrom.Text = selectFolder();
         }
         public void click_Overwiev2(Object sender, EventArgs e)
         {
-            FolderTo.Text = selectFolder(ip);
+            FolderTo.Text = selectFolder();
         }
         public void AddSynch(Object sender, EventArgs e)
         {
             ((ViewModel.ViewModel)DataContext).AddSynch();
         }
-
-        private string selectFolder(string ip)
+        private string selectFolder()
         {
             winForm.FolderBrowserDialog ofd = new winForm.FolderBrowserDialog();
-            // ofd.SelectedPath = string.Format(@"\\{0}\", ip);
-            ofd.SelectedPath = string.Format(@"\\C:\\Users\\sereja\\Desktop\\");
+            ofd.SelectedPath = string.Format(@"\C:\Users\sereja\Desktop\");
 
             winForm.DialogResult result = ofd.ShowDialog();
-            if (result.Equals(false))
+            if (result == winForm.DialogResult.Cancel)
             {
                 return "";
             }
